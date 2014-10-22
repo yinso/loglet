@@ -1,0 +1,23 @@
+{
+  "author": "YC <yinso.chen@gmail.com>",
+  "name": "loglet",
+  "description": "A simple logger.",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://bitbucket.org/yinso/loglet.git"
+  },
+  "main": "./lib/logger",
+  "engines": {
+    "node": ">= 0.8.4"
+  },
+  "scripts": {
+    "test": "make test",
+    "prepublish": "make"
+  },
+  "dependencies": null,
+  "devDependencies": {
+    "testlet": ">= 0.2.0",
+    "coffee-bean": "=0.3.0"
+  }
+}
