@@ -25,11 +25,16 @@ setLevel = (lvl) ->
   if logLevels.hasOwnProperty(lvl)
     logLevel = logLevels[lvl]
 
-setKeys = (keys) ->
+setKeys = (keys = []) ->
+  keys = 
+    if keys instanceof Array
+      keys
+    else
+      [ keys ]
   for key in keys
     enable(key)
 
-transports = []
+transports = [ ]
 
 contains = (ary, item) ->
   for x in ary
@@ -47,6 +52,8 @@ addTransport = (logger) ->
   else
     throw {error: 'invalid_transport', description: 'must have .log, .warn, and .error function.'}
 
+addTransport console
+
 removeTransport = (logger) ->
   for x, i in transports
     if logger == x
@@ -57,11 +64,11 @@ _log = (args...) ->
     trans.log args...
 
 _warn = (args...) ->
-  for trans in transport 
+  for trans in transports 
     trans.warn args...
     
 _error = (args...) ->
-  for trans in transport 
+  for trans in transports 
     trans.error args...
 
 # we take the first as a key... 
@@ -69,8 +76,8 @@ debug = (key, args...) ->
   if logLevel <= logLevels.debug 
     for k, regex of logKeys
       if key.match regex
-        console.log 'DEBUG ----------', key
-        console.log JSON.stringify(args, null, 2)
+        _log 'DEBUG ----------', key
+        _log JSON.stringify(args, null, 2)
 
 whisper = (args...) ->
 
