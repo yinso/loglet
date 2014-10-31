@@ -103,6 +103,10 @@ error = (args...) ->
         _error arg.stack
     _error '****** ERROR END   ******'
 
+croak = (args...) ->
+  error args...
+  process.exit()
+
 module.exports = 
   addTransport: addTransport
   removeTransport: removeTransport
@@ -119,3 +123,4 @@ module.exports =
   talk: talk
   speech: speech
   scream: scream
+  croak: croak
