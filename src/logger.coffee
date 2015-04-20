@@ -1,3 +1,4 @@
+errorlet = require 'errorlet'
 
 # keys are the list of logging to enable... 
 logLevels = 
@@ -33,6 +34,7 @@ setKeys = (keys = []) ->
       [ keys ]
   for key in keys
     enable(key)
+  return
 
 transports = [ ]
 
@@ -41,16 +43,19 @@ contains = (ary, item) ->
     if item == x 
       return true
   false
+  
+isFunction = (func) ->
+  typeof(func) == 'function' or func instanceof Function
 
 isTransportValid = (logger) ->
-  (logger.log instanceof Function) and (logger.warn instanceof Function) and (logger.error instanceof Function)
+  isFunction(logger.log) and isFunction(logger.warn) and isFunction(logger.error)
 
 addTransport = (logger) ->
   if isTransportValid logger
     if not contains transports, logger
       transports.push logger
   else
-    throw {error: 'invalid_transport', description: 'must have .log, .warn, and .error function.'}
+    errorlet.raise {error: 'loglet.invalid_transport', message: "must have .log, .warn, and .error function."}
 
 addTransport console
 
@@ -62,22 +67,25 @@ removeTransport = (logger) ->
 _log = (args...) ->
   for trans in transports
     trans.log args...
+  return
 
 _warn = (args...) ->
   for trans in transports 
     trans.warn args...
+  return
     
 _error = (args...) ->
   for trans in transports 
     trans.error args...
+  return
 
 # we take the first as a key... 
 debug = (key, args...) ->
   if logLevel <= logLevels.debug 
     for k, regex of logKeys
       if key.match regex
-        _log 'DEBUG ----------', key
-        _log JSON.stringify(args, null, 2)
+        _log 'DEBUG ----------', key, JSON.stringify(args, null, 2)
+  return
 
 whisper = (args...) ->
 
@@ -90,27 +98,37 @@ scream = (args...) ->
 
 warn = (args...) ->
   if logLevel <= logLevels.warn
-    _warn "*** WARN START ***"
-    _warn args...
-    _warn "*** WARN END   ***"
+    list = []
+    list.push "*** WARN START ***\n"
+    for arg in args
+      list.push arg
+    list.push "*** WARN END ***\n"
+    _warn.apply @, list
+  return
 
 error = (args...) ->
-  if logLevel <= logLevels.error
-    _error '****** ERROR START ******'
-    _error args...
-    for arg in args
-      if arg?.stack
-        _error arg.stack
-    _error '****** ERROR END   ******'
+  list = []
+  list.push '****** ERROR START ******\n'
+  for arg in args
+    list.push arg
+    if arg?.stack
+      list.push arg.stack
+  list.push '****** ERROR END   ******\n'
+  _error.apply @, list
+  return
 
 croak = (args...) ->
   error args...
-  process.exit()
+  code = -1
+  for arg in args 
+    if arg?.code
+      code = arg.code
+  process.exit(code)
+  return
 
 module.exports = 
   addTransport: addTransport
   removeTransport: removeTransport
-  
   setLevel: setLevel
   enable: enable
   disable: disable
