@@ -12,15 +12,16 @@
     "node": ">= 0.8.4"
   },
   "scripts": {
-    "test": "make test",
+    "test": "./node_modules/.bin/mocha --compilers coffee:coffee-script/register --recursive",
     "prepublish": "make"
   },
   "dependencies": {
-    "errorlet": ">=0.1.0"
+    "errorlet": "^0.2.0"
   },
   "devDependencies": {
-    "testlet": ">= 0.2.0",
-    "coffee-bean": "=0.3.0"
+    "chai": "^3.5.0",
+    "coffee-script": "^1.10.0",
+    "mocha": "^2.4.5"
   },
   "directories": {
     "test": "test"
@@ -28,5 +29,5 @@
   "keywords": [
     "logger"
   ],
-  "license": "MIT"
+  "license": "BSD-3-Clause"
 }
